@@ -11,6 +11,9 @@ import com.fabo.sarahMath.databinding.ActivityMainBinding;
 
 import org.mariuszgromada.math.mxparser.Expression;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding mainBinding;
@@ -139,6 +142,35 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+
+        Map<String, Integer> lessonHash = new HashMap<>();
+
+        GetLesson gl = new GetLesson();
+        lessonHash = gl.getLesson();  // make a hash
+
+        ProblemGenerator pg = new ProblemGenerator(20, 20);
+
+        if (lessonHash.get("function").intValue() == 0) {
+            pg.setlessonFunction(BasicMath.ADD);
+        } else if (lessonHash.get("function").intValue() == 1) {
+            pg.setlessonFunction(BasicMath.SUB);
+        } else if (lessonHash.get("function").intValue() == 2) {
+            pg.setlessonFunction(BasicMath.MUL);
+        } else if (lessonHash.get("function").intValue() == 3) {
+            pg.setlessonFunction(BasicMath.DIV);
+        }
+        if (lessonHash.get("random").intValue() == 1) {
+            pg.setrandomProblem(true);
+        }
+
+        pg.setnumProblems(lessonHash.get("problems").intValue());
+
+        try {
+            pg.problemSet();
+        } catch (Exception ex) {
+            System.out.println("Exception - " + ex.getMessage());
+        }
 
         mainBinding.textViewResult.setText(sharedPreferences.getString("resultText","0"));
         mainBinding.textViewHistory.setText(sharedPreferences.getString("numerator","4"));

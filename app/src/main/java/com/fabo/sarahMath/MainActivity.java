@@ -9,18 +9,19 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.fabo.sarahMath.databinding.ActivityMainBinding;
 
-import org.mariuszgromada.math.mxparser.Expression;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding mainBinding;
+    String functionStr;
     String number = null;
     boolean dotControl = false;
     String result = "";
     boolean buttonEqualsControl = false;
+    BasicMath problem = null;
+    ProblemGenerator pg = null;
     SharedPreferences sharedPreferences;
 
 
@@ -67,12 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
         mainBinding.btnDel.setOnClickListener(v -> {
 
-            if (number == null || number.length() == 1){
+            if (number == null || number.length() == 1) {
                 onButtonACClicked();
-            }else {
+            } else {
 
                 String lastChar;
-                number = number.substring(0,number.length()-1);
+                number = number.substring(0, number.length() - 1);
                 mainBinding.textViewResult.setText(number);
             }
 
@@ -89,12 +90,12 @@ public class MainActivity extends AppCompatActivity {
 
         mainBinding.toolbar.setOnMenuItemClickListener(item -> {
 
-            if (item.getItemId() == R.id.settingsItem){
+            if (item.getItemId() == R.id.settingsItem) {
                 //intent
                 Intent intent = new Intent(MainActivity.this, ChangeThemeActivity.class);
                 startActivity(intent);
                 return true;
-            }else {
+            } else {
                 return false;
             }
 
@@ -106,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        boolean isDarMode = sharedPreferences.getBoolean("switch",false);
-        if (isDarMode){
+        boolean isDarMode = sharedPreferences.getBoolean("switch", false);
+        if (isDarMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        }else {
+        } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
 
@@ -121,20 +122,20 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        String resultTextToSave      = mainBinding.textViewResult.getText().toString();
-        String historyTextToSave     = mainBinding.textViewHistory.getText().toString();
+        String resultTextToSave = mainBinding.textViewResult.getText().toString();
+        String historyTextToSave = mainBinding.textViewHistory.getText().toString();
         String denominatorTextToSave = mainBinding.textViewDenominator.getText().toString();
         String resultToSave = result;
         String numberToSave = number;
         boolean equalToSave = buttonEqualsControl;
 
-        editor.putString("resultText",resultTextToSave);
-        editor.putString("numerator",historyTextToSave);
-        editor.putString("denominator",denominatorTextToSave);
+        editor.putString("resultText", resultTextToSave);
+        editor.putString("numerator", historyTextToSave);
+        editor.putString("denominator", denominatorTextToSave);
 
-        editor.putString("result",resultToSave);
-        editor.putString("number",numberToSave);
-        editor.putBoolean("equal",equalToSave);
+        editor.putString("result", resultToSave);
+        editor.putString("number", numberToSave);
+        editor.putBoolean("equal", equalToSave);
         editor.apply();
 
     }
@@ -143,43 +144,54 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        mainBinding.textViewResult.setText(sharedPreferences.getString("resultText", "0"));
 
+        result = sharedPreferences.getString("result", "");
+        number = sharedPreferences.getString("number", null);
+        buttonEqualsControl = sharedPreferences.getBoolean("equal", false);
+
+    }
+    public BasicMath createProblemSet() {
         Map<String, Integer> lessonHash = new HashMap<>();
 
+        // sharedPreferences = this.getSharedPreferences("com.fabo.sarahMath", Context.MODE_PRIVATE);
+
         GetLesson gl = new GetLesson();
-        lessonHash = gl.getLesson();  // make a hash
+        lessonHash = gl.getLesson(mainBinding,sharedPreferences);  // make a hash
 
-        ProblemGenerator pg = new ProblemGenerator(20, 20);
+        pg = new ProblemGenerator(lessonHash.get("rows"),lessonHash.get("cols"));
 
-        if (lessonHash.get("function").intValue() == 0) {
+        if(lessonHash.get("function").intValue() == 0) {
             pg.setlessonFunction(BasicMath.ADD);
-        } else if (lessonHash.get("function").intValue() == 1) {
+            functionStr = "+ ";
+        } else if(lessonHash.get("function").intValue() == 1) {
             pg.setlessonFunction(BasicMath.SUB);
-        } else if (lessonHash.get("function").intValue() == 2) {
+            functionStr = "- ";
+        } else if(lessonHash.get("function").intValue() == 2) {
             pg.setlessonFunction(BasicMath.MUL);
-        } else if (lessonHash.get("function").intValue() == 3) {
+            functionStr = "x ";
+        } else if(lessonHash.get("function").intValue() == 3) {
             pg.setlessonFunction(BasicMath.DIV);
+            functionStr = "/ ";
         }
-        if (lessonHash.get("random").intValue() == 1) {
+
+        if(lessonHash.get("random").intValue() == 1) {
             pg.setrandomProblem(true);
         }
 
         pg.setnumProblems(lessonHash.get("problems").intValue());
 
         try {
-            pg.problemSet();
-        } catch (Exception ex) {
-            System.out.println("Exception - " + ex.getMessage());
+            problem = (pg.getProblem());
+            mainBinding.textViewHistory.setText(sharedPreferences.getString("numerator", Integer.toString(problem.getNumerator())));
+            String denom = functionStr + Integer.toString(problem.getDenominator());
+            mainBinding.textViewDenominator.setText(sharedPreferences.getString("denominator", denom));
+
+        } catch( Exception ex) {
+            mainBinding.textViewDenominator.setText("Exception - " + ex.getMessage());
+            problem = null;
         }
-
-        mainBinding.textViewResult.setText(sharedPreferences.getString("resultText","0"));
-        mainBinding.textViewHistory.setText(sharedPreferences.getString("numerator","4"));
-        mainBinding.textViewDenominator.setText(sharedPreferences.getString("denominator","+ 4"));
-
-        result = sharedPreferences.getString("result","");
-        number = sharedPreferences.getString("number",null);
-        buttonEqualsControl = sharedPreferences.getBoolean("equal",false);
-
+        return problem;
     }
 
     public void onNumberClicked(String clickedNumber){

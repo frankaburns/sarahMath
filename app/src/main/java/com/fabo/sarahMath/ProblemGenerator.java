@@ -7,7 +7,6 @@ public
 class ProblemGenerator {
 
     public  static int     num;
-    public  static int     mag;
     public  static int     res;
     public  static int     rows;
     public  static int     cols;
@@ -16,7 +15,7 @@ class ProblemGenerator {
     public  static int     problemsSolved;
     public  static int     numProblems;
     public  static int     lessonFunction; // 0-ADD, 1-SUB, 2-MUL, 3-DIV
-    public static boolean randomProblem;
+    public  static boolean randomProblem;
 
     List<BasicMath> subSet = new ArrayList<>();
     List<BasicMath> problemSet = new ArrayList<>();
@@ -29,12 +28,10 @@ class ProblemGenerator {
         rows           = size;
         cols           = size;
         numWrong       = 0;
+        numProblems    = 10;
         problemCount   = 0;
+        randomProblem  = false;
         problemsSolved = 0;
-        numProblems    = 25;
-    
-        randomProblem = false;
-
     }
 
 
@@ -42,7 +39,7 @@ class ProblemGenerator {
      * 
      * @param n
      */
-    public void setnumProblems ( int n) {
+    public void setNumProblems ( int n) {
       numProblems = n;
     }
 
@@ -50,7 +47,7 @@ class ProblemGenerator {
      * 
      * @param p
      */
-    public void setrandomProblem ( boolean p) {
+    public void setRandomProblem ( boolean p) {
       randomProblem = p;
     }
 
@@ -58,7 +55,7 @@ class ProblemGenerator {
      * 
      * @param f
      */
-    public void setlessonFunction (int f) {
+    public void setLessonFunction (int f) {
       lessonFunction = f;
     }
 
@@ -66,7 +63,7 @@ class ProblemGenerator {
      * 
      * @return
      */
-    public int getnumProblems () {
+    public int getNumProblems () {
       return (numProblems);
     }
 
@@ -74,7 +71,7 @@ class ProblemGenerator {
      * 
      * @return
      */
-    public boolean getrandomProblem () {
+    public boolean getRandomProblem () {
       return (randomProblem);
     }
 

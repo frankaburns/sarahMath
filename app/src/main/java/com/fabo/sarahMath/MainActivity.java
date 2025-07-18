@@ -11,13 +11,18 @@ import com.fabo.sarahMath.databinding.ActivityMainBinding;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     int numWrong = 0;
+    int problemStep = 0;
+    int problemSteps = 1;
+    String blank = " ";
     String functionStr;
     String number = null;
     String result = "";
+    boolean makingNewProblemSet = false;
     boolean buttonEqualsControl = false;
     BasicMath problem = null;
     GetLesson gl = null;
@@ -34,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         gl = new GetLesson();
         lessonHash = gl.getLesson();
-        pg = new ProblemGenerator(lessonHash.get("rows"));
+        pg = new ProblemGenerator(lessonHash.get("level")*10);
         mainBinding.textViewResult.setText("0");
 
         sharedPreferences = this.getSharedPreferences("com.fabo.sarahMath", Context.MODE_PRIVATE);
@@ -85,24 +90,44 @@ public class MainActivity extends AppCompatActivity {
 
         mainBinding.btnEquals.setOnClickListener(v -> {
 
-            mainBinding.textViewComment.setText("");
+            // mainBinding.textViewComment.setText(blank);
             mainBinding.textViewResult.setText(result);
-            if (problem != null) {
-                if (problem.doTheMath(problem.getFunction()) != Integer.parseInt(number)) {
-                    numWrong++;
-                    mainBinding.textViewComment.setText("Please try again");
-                } else {
-                    problem = pg.getProblem();
+            if (!makingNewProblemSet) {
+                if (problem != null) {
+                    if (problem.doTheMath(problem.getFunction()) != Integer.parseInt(number)) {
+                        numWrong++;
+                        String msg = "Please try again.";
+                        mainBinding.textViewResult.setText(msg);
+                    } else {
+                        problem = pg.getProblem();
+                    }
+                    if (problem == null) {
+                        makingNewProblemSet = true;
+                    } else {
+                        mainBinding.textViewHistory.setText(Integer.toString(problem.getNumerator()));
+                        String denom = functionStr + problem.getDenominator();
+                        mainBinding.textViewDenominator.setText(denom);
+                    }
                 }
-                if (problem == null) {
+            }
+            if (makingNewProblemSet) {
+                if (problemStep < problemSteps) {
+                    int val = pg.getNumProblems()-numWrong;
+                    String score = "You scored: " + val + "/" + pg.getNumProblems();
+                    mainBinding.textViewHistory.setText(blank);
+                    mainBinding.textViewDenominator.setText(score);
+                    problemStep++;
+                } else {
+                    makingNewProblemSet = false;
+                    problemStep = 0;
                     numWrong = 0;
                     pg.clearProblemSet();
                     createProblemSet();
                     problem = pg.getProblem();
+                    mainBinding.textViewHistory.setText(Integer.toString(problem.getNumerator()));
+                    String denom = functionStr + problem.getDenominator();
+                    mainBinding.textViewDenominator.setText(denom);
                 }
-                mainBinding.textViewHistory.setText(Integer.toString(problem.getNumerator()));
-                String denom = functionStr + problem.getDenominator();
-                mainBinding.textViewDenominator.setText(denom);
             }
             buttonEqualsControl = true;
         });
@@ -143,13 +168,15 @@ public class MainActivity extends AppCompatActivity {
 
         String resultTextToSave = mainBinding.textViewResult.getText().toString();
         String historyTextToSave = mainBinding.textViewHistory.getText().toString();
-        String denominatorTextToSave = mainBinding.textViewDenominator.getText().toString();
+        String commentTextToSave = Objects.requireNonNull(mainBinding.textViewComment).getText().toString();
+        String denominatorTextToSave = Objects.requireNonNull(mainBinding.textViewDenominator).getText().toString();
         String resultToSave = result;
         String numberToSave = number;
         boolean equalToSave = buttonEqualsControl;
 
         editor.putString("resultText", resultTextToSave);
         editor.putString("numerator", historyTextToSave);
+        editor.putString("comment", commentTextToSave);
         editor.putString("denominator", denominatorTextToSave);
 
         editor.putString("result", resultToSave);
@@ -173,31 +200,30 @@ public class MainActivity extends AppCompatActivity {
 
         mainBinding.textViewHistory.setText(Integer.toString(problem.getNumerator()));
         String denom = functionStr + Integer.toString(problem.getDenominator());
-        mainBinding.textViewDenominator.setText(denom);
+        Objects.requireNonNull(mainBinding.textViewDenominator).setText(denom);
 
     }
     public void createProblemSet() {
 
-        // sharedPreferences = this.getSharedPreferences("com.fabo.sarahMath", Context.MODE_PRIVATE);
         if(lessonHash.get("function").intValue() == 0) {
-            pg.setlessonFunction(BasicMath.ADD);
+            pg.setLessonFunction(BasicMath.ADD);
             functionStr = "+ ";
         } else if(lessonHash.get("function").intValue() == 1) {
-            pg.setlessonFunction(BasicMath.SUB);
+            pg.setLessonFunction(BasicMath.SUB);
             functionStr = "- ";
         } else if(lessonHash.get("function").intValue() == 2) {
-            pg.setlessonFunction(BasicMath.MUL);
+            pg.setLessonFunction(BasicMath.MUL);
             functionStr = "x ";
         } else if(lessonHash.get("function").intValue() == 3) {
-            pg.setlessonFunction(BasicMath.DIV);
+            pg.setLessonFunction(BasicMath.DIV);
             functionStr = "/ ";
         }
 
         if(lessonHash.get("random").intValue() == 1) {
-            pg.setrandomProblem(true);
+            pg.setRandomProblem(true);
         }
 
-        pg.setnumProblems(lessonHash.get("problems").intValue());
+        pg.setNumProblems(lessonHash.get("problems").intValue());
         pg.clearProblemSet();
         pg.buildProblemSet();
         problem = pg.getProblem();
@@ -217,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
 
         number = null;
         mainBinding.textViewResult.setText("0");
-        mainBinding.textViewHistory.setText("");
         buttonEqualsControl = false;
         result = "";
 

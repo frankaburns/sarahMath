@@ -25,12 +25,12 @@ public class GetLesson {
         // sharedPreferences = this.getSharedPreferences("com.fabo.sarahMath", Context.MODE_PRIVATE);
         // String result = sharedPreferences.getString("result","");
 
-        lesson.put("rows", 20);
-        lesson.put("cols", 20);
+        lesson.put("rows", 10);
+        lesson.put("cols", 10);
         lesson.put("level", 1);
         lesson.put("random", 1);
         lesson.put("function", 0);
-        lesson.put("problems", 50);
+        lesson.put("problems", 20);
 
         return lesson;
     }

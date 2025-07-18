@@ -85,12 +85,15 @@ public class MainActivity extends AppCompatActivity {
 
         mainBinding.btnEquals.setOnClickListener(v -> {
 
+            mainBinding.textViewComment.setText("");
             mainBinding.textViewResult.setText(result);
             if (problem != null) {
-                if (pg.doProblem(problem, result) == 1) {
+                if (problem.doTheMath(problem.getFunction()) != Integer.parseInt(number)) {
                     numWrong++;
+                    mainBinding.textViewComment.setText("Please try again");
+                } else {
+                    problem = pg.getProblem();
                 }
-                problem = pg.getProblem();
                 if (problem == null) {
                     numWrong = 0;
                     pg.clearProblemSet();

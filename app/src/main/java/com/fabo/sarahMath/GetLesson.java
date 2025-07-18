@@ -15,38 +15,22 @@ public class GetLesson {
         lesson = new HashMap<>();
     }
 
-    public Map<String, Integer> getLesson(ActivityMainBinding mainBinding, SharedPreferences sharedPreferences) {
+    public Map<String, Integer> getLesson() { // String prompt, ActivityMainBinding mainBinding, SharedPreferences sharedPreferences) {
 
-        mainBinding.textViewResult.setText("Lesson Configuration");
-        mainBinding.textViewHistory.setText("Level(0: 1-diget,1: 2-diget, 2: 3-diget):");
+        /* mainBinding.textViewResult.setText("Lesson Configuration");
+         * mainBinding.textViewHistory.setText(prompt);
+         */
+        Map<String, Integer> lesson = new HashMap<>();
 
-        String result = sharedPreferences.getString("result","");
-        lesson.put("level", Integer.parseInt(result));
+        // sharedPreferences = this.getSharedPreferences("com.fabo.sarahMath", Context.MODE_PRIVATE);
+        // String result = sharedPreferences.getString("result","");
 
-        mainBinding.textViewHistory.setText("Random(1-yes, 0-ordered):");
-
-        result = sharedPreferences.getString("result","");
-        lesson.put("random",Integer.parseInt(result));
-
-        mainBinding.textViewHistory.setText("Function(0-add, 1-subtract, 2-multiply, 3-divide):");
-
-        result = sharedPreferences.getString("result","");
-        lesson.put("function", Integer.parseInt(result));
-
-        mainBinding.textViewHistory.setText("Number of rows:");
-
-        result = sharedPreferences.getString("result","");
-        lesson.put("rows", Integer.parseInt(result));
-
-        mainBinding.textViewHistory.setText("Number of columns:");
-
-        result = sharedPreferences.getString("result","");
-        lesson.put("cols", Integer.parseInt(result));
-
-        mainBinding.textViewHistory.setText("Number of problems:");
-
-        result = sharedPreferences.getString("result","");
-        lesson.put("problems", Integer.parseInt(result));
+        lesson.put("rows", 20);
+        lesson.put("cols", 20);
+        lesson.put("level", 1);
+        lesson.put("random", 1);
+        lesson.put("function", 0);
+        lesson.put("problems", 50);
 
         return lesson;
     }

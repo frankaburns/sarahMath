@@ -1,4 +1,6 @@
 package com.fabo.sarahMath;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public
@@ -16,22 +18,22 @@ class ProblemGenerator {
     public  static int     lessonFunction; // 0-ADD, 1-SUB, 2-MUL, 3-DIV
     public static boolean randomProblem;
 
+    List<BasicMath> subSet = new ArrayList<>();
+    List<BasicMath> problemSet = new ArrayList<>();
 
     /**
      * 
-     * @param rows
-     * @param cols
+     * @param size
      */
-    ProblemGenerator(int rows, int cols) {  
-      numWrong       = 0;
-      problemCount   = 0;
-      problemsSolved = 0;
-      numProblems    = 25;
+    ProblemGenerator(int size) {
+        rows           = size;
+        cols           = size;
+        numWrong       = 0;
+        problemCount   = 0;
+        problemsSolved = 0;
+        numProblems    = 25;
     
-      randomProblem = false;
-
-      subSet        = new BasicMath[rows*cols];
-      problemSet    = new BasicMath[rows*cols];
+        randomProblem = false;
 
     }
 
@@ -81,17 +83,29 @@ class ProblemGenerator {
      * @return
      */
     public BasicMath getProblem () {
+
         if (problemsSolved < numProblems) {
             if ((lessonFunction == BasicMath.SUB) || (lessonFunction == BasicMath.DIV)) {
-                return subSet[problemsSolved++];
+                return subSet.get(problemsSolved++);
             } else {
-                return problemSet[problemsSolved];
+                return problemSet.get(problemsSolved++);
             }
         } else {
-            return (null);
+            problemsSolved = 0;
+            return null;
         }
     }
 
+
+    /**
+     *
+     * @return
+     */
+    public void clearProblemSet () {
+
+        subSet.clear();
+        problemSet.clear();
+    }
 
     /**
      *
@@ -102,20 +116,19 @@ class ProblemGenerator {
     }
 
     /**
-     * Method to execute the mathmatical function described by the BasicMath 
+     * Method to execute the mathmatical function described by the BasicMath
      * object. The basic math has a function, a numerator and a denominator.
-     * 
+     *
      * @param problem - a basic math object.
      * @throws Exception - exception (devide by zero maybe?)
      */
-    public int doProblem(BasicMath problem, String answer) throws Exception {
+    public int doProblem(BasicMath problem, String answer) {
 
       int  wrong       = 0;
       Properties p     = System.getProperties();
       String separator = p.getProperty("line.separator");
 
       num = Integer.parseInt(answer);
-      mag =
       res = problem.doTheMath(problem.getFunction());
 
       if (res != num) {
@@ -125,65 +138,57 @@ class ProblemGenerator {
     }
 
     /**
-     * 
+     *
      */
     private void shuffleArray () {
 
-      for( int prob = 0; prob < problemSet.length; prob++ ){
+      for( int prob = 0; prob < problemSet.size(); prob++ ){
         int newPosition         = (int)(Math.random()*100)%(rows*cols);
-        BasicMath tmp           = problemSet[newPosition];
-        problemSet[newPosition] = problemSet[prob];
-        problemSet[prob]        = tmp;
+        BasicMath tmp           = problemSet.get(newPosition);
+        problemSet.set(newPosition, problemSet.get(prob));
+        problemSet.set(prob, tmp);
       }
     }
 
     /**
-     * 
-     * @param rows
-     * @param cols
+     *
      */
-    private void buildProblemSet (int rows, int cols) {
-      problemCount = rows*cols;
-      for( int i = 0, iPlusOne = 1; i < rows; i++, iPlusOne++ ){     
-        for( int j = 0, jPlusOne = 1; j < cols; j++, jPlusOne++ ){
-          int idx = i*(rows)+j;
-          problemSet[idx] = new BasicMath(lessonFunction);
-          problemSet[idx].setNumerator(iPlusOne);
-          problemSet[idx].setDenominator(jPlusOne);
+    public void buildProblemSet () {
+        problemCount = rows*cols;
+        for( int i = 0, iPlusOne = 1; i < rows; i++, iPlusOne++ ){
+            for( int j = 0, jPlusOne = 1; j < cols; j++, jPlusOne++ ){
+               int idx = i*(rows)+j;
+               problemSet.add(new BasicMath(lessonFunction));
+               problemSet.get(idx).setNumerator(iPlusOne);
+               problemSet.get(idx).setDenominator(jPlusOne);
+            }
         }
-      }
 
-      if (randomProblem) {
-        shuffleArray ();
-      }
+        if (randomProblem) {
+            shuffleArray ();
+        }
 
-      if (lessonFunction == BasicMath.SUB) {
-        int iterations = rows*cols;
-        for (int i=0; i<iterations; i++) {
-          if (problemSet[i].getNumerator() >= problemSet[i].getDenominator()) {
-            subSet[problemCount] = new BasicMath(problemSet[i].getFunction());
-            subSet[problemCount].setNumerator(problemSet[i].getNumerator());
-            subSet[problemCount++].setDenominator(problemSet[i].getDenominator());
-         }
-        }     
-      }
+        if (lessonFunction == BasicMath.SUB) {
+            int iterations = rows*cols;
+            for (int i=0; i<iterations; i++) {
+                if (problemSet.get(i).getNumerator() >= problemSet.get(i).getDenominator()) {
+                    subSet.add(new BasicMath(problemSet.get(i).getFunction()));
+                    subSet.get(problemCount).setNumerator(problemSet.get(i).getNumerator());
+                    subSet.get(problemCount++).setDenominator(problemSet.get(i).getDenominator());
+               }
+            }
+        }
 
-      if (lessonFunction == BasicMath.DIV) {
-        int iterations = rows*cols;
-        for (int i=0; i<iterations; i++) {
-          if ( (problemSet[i].getNumerator() >= problemSet[i].getDenominator()) &&
-               ((problemSet[i].getNumerator()%problemSet[i].getDenominator()) == 0) ) {
-            subSet[problemCount] = new BasicMath(problemSet[i].getFunction());
-            subSet[problemCount].setNumerator(problemSet[i].getNumerator());
-            subSet[problemCount++].setDenominator(problemSet[i].getDenominator());
-         }
-        }     
-      }
-    }
-
-    private static BasicMath[] subSet;
-    private static BasicMath[] problemSet;
-
-    static {
+        if (lessonFunction == BasicMath.DIV) {
+            int iterations = rows*cols;
+            for (int i=0; i<iterations; i++) {
+                if ( (problemSet.get(i).getNumerator() >= problemSet.get(i).getDenominator()) &&
+                    ((problemSet.get(i).getNumerator()%problemSet.get(i).getDenominator()) == 0) ) {
+                    subSet.add(new BasicMath(problemSet.get(i).getFunction()));
+                    subSet.get(problemCount).setNumerator(problemSet.get(i).getNumerator());
+                    subSet.get(problemCount++).setDenominator(problemSet.get(i).getDenominator());
+                }
+            }
+        }
     }
 };

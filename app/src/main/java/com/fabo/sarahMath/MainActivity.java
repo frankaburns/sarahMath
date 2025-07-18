@@ -14,16 +14,17 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    ActivityMainBinding mainBinding;
+    int numWrong = 0;
     String functionStr;
     String number = null;
-    boolean dotControl = false;
     String result = "";
     boolean buttonEqualsControl = false;
     BasicMath problem = null;
+    GetLesson gl = null;
+    Map<String, Integer> lessonHash = new HashMap<>();
     ProblemGenerator pg = null;
+    ActivityMainBinding mainBinding;
     SharedPreferences sharedPreferences;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
         mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mainBinding.getRoot());
 
+        gl = new GetLesson();
+        lessonHash = gl.getLesson();
+        pg = new ProblemGenerator(lessonHash.get("rows"));
         mainBinding.textViewResult.setText("0");
 
         sharedPreferences = this.getSharedPreferences("com.fabo.sarahMath", Context.MODE_PRIVATE);
@@ -81,10 +85,22 @@ public class MainActivity extends AppCompatActivity {
 
         mainBinding.btnEquals.setOnClickListener(v -> {
 
-            String expressionForCalculate = mainBinding.textViewResult.getText().toString();
-
             mainBinding.textViewResult.setText(result);
-
+            if (problem != null) {
+                if (pg.doProblem(problem, result) == 1) {
+                    numWrong++;
+                }
+                problem = pg.getProblem();
+                if (problem == null) {
+                    numWrong = 0;
+                    pg.clearProblemSet();
+                    createProblemSet();
+                    problem = pg.getProblem();
+                }
+                mainBinding.textViewHistory.setText(Integer.toString(problem.getNumerator()));
+                String denom = functionStr + problem.getDenominator();
+                mainBinding.textViewDenominator.setText(denom);
+            }
             buttonEqualsControl = true;
         });
 
@@ -150,17 +166,16 @@ public class MainActivity extends AppCompatActivity {
         number = sharedPreferences.getString("number", null);
         buttonEqualsControl = sharedPreferences.getBoolean("equal", false);
 
+        createProblemSet();
+
+        mainBinding.textViewHistory.setText(Integer.toString(problem.getNumerator()));
+        String denom = functionStr + Integer.toString(problem.getDenominator());
+        mainBinding.textViewDenominator.setText(denom);
+
     }
-    public BasicMath createProblemSet() {
-        Map<String, Integer> lessonHash = new HashMap<>();
+    public void createProblemSet() {
 
         // sharedPreferences = this.getSharedPreferences("com.fabo.sarahMath", Context.MODE_PRIVATE);
-
-        GetLesson gl = new GetLesson();
-        lessonHash = gl.getLesson(mainBinding,sharedPreferences);  // make a hash
-
-        pg = new ProblemGenerator(lessonHash.get("rows"),lessonHash.get("cols"));
-
         if(lessonHash.get("function").intValue() == 0) {
             pg.setlessonFunction(BasicMath.ADD);
             functionStr = "+ ";
@@ -180,18 +195,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         pg.setnumProblems(lessonHash.get("problems").intValue());
-
-        try {
-            problem = (pg.getProblem());
-            mainBinding.textViewHistory.setText(sharedPreferences.getString("numerator", Integer.toString(problem.getNumerator())));
-            String denom = functionStr + Integer.toString(problem.getDenominator());
-            mainBinding.textViewDenominator.setText(sharedPreferences.getString("denominator", denom));
-
-        } catch( Exception ex) {
-            mainBinding.textViewDenominator.setText("Exception - " + ex.getMessage());
-            problem = null;
-        }
-        return problem;
+        pg.clearProblemSet();
+        pg.buildProblemSet();
+        problem = pg.getProblem();
     }
 
     public void onNumberClicked(String clickedNumber){

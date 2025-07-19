@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     int numWrong = 0;
     int problemStep = 0;
-    int problemSteps = 1;
+    int problemSteps = 5;
     String blank = " ";
     String functionStr;
     String number = null;
@@ -25,8 +25,6 @@ public class MainActivity extends AppCompatActivity {
     boolean makingNewProblemSet = false;
     boolean buttonEqualsControl = false;
     BasicMath problem = null;
-    GetLesson gl = null;
-    Map<String, Integer> lessonHash = new HashMap<>();
     ProblemGenerator pg = null;
     ActivityMainBinding mainBinding;
     SharedPreferences sharedPreferences;
@@ -37,9 +35,8 @@ public class MainActivity extends AppCompatActivity {
         mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mainBinding.getRoot());
 
-        gl = new GetLesson();
-        lessonHash = gl.getLesson();
-        pg = new ProblemGenerator(lessonHash.get("level")*10);
+        pg = new ProblemGenerator(20);
+
         mainBinding.textViewResult.setText("0");
 
         sharedPreferences = this.getSharedPreferences("com.fabo.sarahMath", Context.MODE_PRIVATE);
@@ -112,18 +109,63 @@ public class MainActivity extends AppCompatActivity {
             }
             if (makingNewProblemSet) {
                 if (problemStep < problemSteps) {
-                    int val = pg.getNumProblems()-numWrong;
-                    String score = "You scored: " + val + "/" + pg.getNumProblems();
-                    mainBinding.textViewHistory.setText(blank);
-                    mainBinding.textViewDenominator.setText(score);
+                    String config = "Lesson Configuration";
+                    String level = "(Enter Level(0: 1-diget,1: 2-diget, 2: 3-diget):";
+                    String random = "Enter Random(1-yes, 0-ordered):";
+                    String function = "Enter Function(0-add, 1-subtract, 2-multiply, 3-divide):";
+                    String num = "Enter Number of problems";
+                    if (problemStep == 0) {
+                        int val = pg.getNumProblems() - numWrong;
+                        String score = "You scored: " + val + "/" + pg.getNumProblems();
+                        mainBinding.textViewHistory.setText(config);
+                        mainBinding.textViewDenominator.setText(blank);
+                        mainBinding.textViewComment.setText(score);
+                    } else if (problemStep == 1) {
+                        mainBinding.textViewHistory.setText(config);
+                        mainBinding.textViewDenominator.setText(blank);
+                        mainBinding.textViewComment.setText(level);
+
+                    } else if (problemStep == 2) {
+                        mainBinding.textViewHistory.setText(config);
+                        mainBinding.textViewDenominator.setText(blank);
+                        mainBinding.textViewComment.setText(random);
+
+                    } else if (problemStep == 3) {
+                        pg.setRandomProblem(Objects.equals(number, "1"));
+                        mainBinding.textViewHistory.setText(config);
+                        mainBinding.textViewDenominator.setText(blank);
+                        mainBinding.textViewComment.setText(function);
+
+                    } else if (problemStep == 4) {
+                        mainBinding.textViewHistory.setText(config);
+                        mainBinding.textViewDenominator.setText(blank);
+                        mainBinding.textViewComment.setText(num);
+
+                        if(number == "0") {
+                            pg.setLessonFunction(BasicMath.ADD);
+                            functionStr = "+ ";
+                        } else if(number == "1") {
+                            pg.setLessonFunction(BasicMath.SUB);
+                            functionStr = "- ";
+                        } else if(number == "2") {
+                            pg.setLessonFunction(BasicMath.MUL);
+                            functionStr = "x ";
+                        } else if(number == "3") {
+                            pg.setLessonFunction(BasicMath.DIV);
+                            functionStr = "/ ";
+                        }
+                    }
+
                     problemStep++;
                 } else {
+                    pg.setNumProblems(Integer.parseInt(number));
                     makingNewProblemSet = false;
                     problemStep = 0;
                     numWrong = 0;
                     pg.clearProblemSet();
-                    createProblemSet();
+                    pg.buildProblemSet();
                     problem = pg.getProblem();
+                    mainBinding.textViewComment.setText(blank);
                     mainBinding.textViewHistory.setText(Integer.toString(problem.getNumerator()));
                     String denom = functionStr + problem.getDenominator();
                     mainBinding.textViewDenominator.setText(denom);
@@ -196,37 +238,8 @@ public class MainActivity extends AppCompatActivity {
         number = sharedPreferences.getString("number", null);
         buttonEqualsControl = sharedPreferences.getBoolean("equal", false);
 
-        createProblemSet();
+        makingNewProblemSet = true;
 
-        mainBinding.textViewHistory.setText(Integer.toString(problem.getNumerator()));
-        String denom = functionStr + Integer.toString(problem.getDenominator());
-        Objects.requireNonNull(mainBinding.textViewDenominator).setText(denom);
-
-    }
-    public void createProblemSet() {
-
-        if(lessonHash.get("function").intValue() == 0) {
-            pg.setLessonFunction(BasicMath.ADD);
-            functionStr = "+ ";
-        } else if(lessonHash.get("function").intValue() == 1) {
-            pg.setLessonFunction(BasicMath.SUB);
-            functionStr = "- ";
-        } else if(lessonHash.get("function").intValue() == 2) {
-            pg.setLessonFunction(BasicMath.MUL);
-            functionStr = "x ";
-        } else if(lessonHash.get("function").intValue() == 3) {
-            pg.setLessonFunction(BasicMath.DIV);
-            functionStr = "/ ";
-        }
-
-        if(lessonHash.get("random").intValue() == 1) {
-            pg.setRandomProblem(true);
-        }
-
-        pg.setNumProblems(lessonHash.get("problems").intValue());
-        pg.clearProblemSet();
-        pg.buildProblemSet();
-        problem = pg.getProblem();
     }
 
     public void onNumberClicked(String clickedNumber){

@@ -169,9 +169,7 @@ class ProblemGenerator {
             int iterations = rows*cols;
             for (int i=0; i<iterations; i++) {
                 if (problemSet.get(i).getNumerator() >= problemSet.get(i).getDenominator()) {
-                    subSet.add(new BasicMath(problemSet.get(i).getFunction()));
-                    subSet.get(problemCount).setNumerator(problemSet.get(i).getNumerator());
-                    subSet.get(problemCount++).setDenominator(problemSet.get(i).getDenominator());
+                    subSet.add(problemSet.get(i));
                }
             }
         }
@@ -181,9 +179,7 @@ class ProblemGenerator {
             for (int i=0; i<iterations; i++) {
                 if ( (problemSet.get(i).getNumerator() >= problemSet.get(i).getDenominator()) &&
                     ((problemSet.get(i).getNumerator()%problemSet.get(i).getDenominator()) == 0) ) {
-                    subSet.add(new BasicMath(problemSet.get(i).getFunction()));
-                    subSet.get(problemCount).setNumerator(problemSet.get(i).getNumerator());
-                    subSet.get(problemCount++).setDenominator(problemSet.get(i).getDenominator());
+                    subSet.add(problemSet.get(i));
                 }
             }
         }

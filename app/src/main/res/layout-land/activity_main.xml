@@ -27,12 +27,13 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+
     <TextView
         android:id="@+id/textViewHistory"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:autoSizeMaxTextSize="24sp"
-        android:autoSizeMinTextSize="6sp"
+        android:layout_height="85dp"
+        android:autoSizeMaxTextSize="70sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="2sp"
         android:autoSizeTextType="uniform"
         android:background="@color/background_color"
@@ -42,20 +43,51 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
+
     <TextView
-        android:id="@+id/textViewResult"
+        android:id="@+id/textViewDenominator"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:autoSizeMaxTextSize="30sp"
-        android:autoSizeMinTextSize="8sp"
+        android:layout_height="85dp"
+        android:autoSizeMaxTextSize="70sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="2sp"
         android:autoSizeTextType="uniform"
         android:background="@color/background_color"
         android:gravity="center|end"
         android:textColor="@color/text_color"
-        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewHistory" />
+
+    <TextView
+        android:id="@+id/textViewComment"
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:autoSizeMaxTextSize="70sp"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeStepGranularity="2sp"
+        android:autoSizeTextType="uniform"
+        android:background="@color/background_color"
+        android:gravity="center|end"
+        android:textColor="@color/text_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDenominator" />
+
+    <TextView
+        android:id="@+id/textViewResult"
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:autoSizeMaxTextSize="70sp"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeStepGranularity="2sp"
+        android:autoSizeTextType="uniform"
+        android:background="@color/background_color"
+        android:gravity="center|end"
+        android:textColor="@color/text_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewComment" />
 
     <GridLayout
         android:id="@+id/gridLayout"

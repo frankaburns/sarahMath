@@ -28,7 +28,7 @@ public class GetLesson {
         lesson.put("level", 1);
         lesson.put("random", 1);
         lesson.put("function", 0);
-        lesson.put("problems", 10);
+        lesson.put("problems", 5);
 
         return lesson;
     }
